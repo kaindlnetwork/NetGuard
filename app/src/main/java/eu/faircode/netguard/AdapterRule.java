@@ -407,6 +407,8 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
         holder.cbWifi.setAlpha(wifiActive ? 1 : 0.5f);
         holder.cbWifi.setOnCheckedChangeListener(null);
         holder.cbWifi.setChecked(rule.wifi_blocked);
+        holder.cbWifi.setContentDescription(context.getString(rule.wifi_blocked
+                ? R.string.title_block_wifi : R.string.title_allow_wifi));
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Drawable wrap = DrawableCompat.wrap(CompoundButtonCompat.getButtonDrawable(holder.cbWifi));
             DrawableCompat.setTint(wrap, rule.apply ? (rule.wifi_blocked ? colorOff : colorOn) : colorGrayed);
@@ -415,6 +417,8 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 rule.wifi_blocked = isChecked;
+                holder.cbWifi.setContentDescription(context.getString(rule.wifi_blocked
+                        ? R.string.title_block_wifi : R.string.title_allow_wifi));
                 updateRule(context, rule, true, listAll);
             }
         });
@@ -432,6 +436,8 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
         holder.cbOther.setAlpha(otherActive ? 1 : 0.5f);
         holder.cbOther.setOnCheckedChangeListener(null);
         holder.cbOther.setChecked(rule.other_blocked);
+        holder.cbOther.setContentDescription(context.getString(rule.other_blocked
+                ? R.string.title_block_other : R.string.title_allow_other));
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Drawable wrap = DrawableCompat.wrap(CompoundButtonCompat.getButtonDrawable(holder.cbOther));
             DrawableCompat.setTint(wrap, rule.apply ? (rule.other_blocked ? colorOff : colorOn) : colorGrayed);
@@ -440,6 +446,8 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 rule.other_blocked = isChecked;
+                holder.cbOther.setContentDescription(context.getString(rule.other_blocked
+                        ? R.string.title_block_other : R.string.title_allow_other));
                 updateRule(context, rule, true, listAll);
             }
         });
