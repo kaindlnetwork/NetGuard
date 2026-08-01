@@ -896,35 +896,4 @@ public class Util {
 
         return sb;
     }
-
-    public static int getActionBarHeight(Context context) {
-        try {
-            TypedValue tv = new TypedValue();
-            boolean resolved = context.getTheme().resolveAttribute(
-                    androidx.appcompat.R.attr.actionBarSize,
-                    tv,
-                    true
-            );
-            Log.i(TAG, "Action bar AndroidX resolved=" + resolved + "/" + (tv.type == TypedValue.TYPE_DIMENSION));
-
-            if (!resolved || tv.type != TypedValue.TYPE_DIMENSION) {
-                resolved = context.getTheme().resolveAttribute(
-                        android.R.attr.actionBarSize,
-                        tv,
-                        true
-                );
-                Log.i(TAG, "Action bar Android resolved=" + resolved + "/" + (tv.type == TypedValue.TYPE_DIMENSION));
-            }
-
-            if (resolved && tv.type == TypedValue.TYPE_DIMENSION)
-                return TypedValue.complexToDimensionPixelSize(
-                        tv.data,
-                        context.getResources().getDisplayMetrics());
-            else
-                return dips2pixels(56, context);
-        } catch (Throwable ex) {
-            Log.e(TAG, ex.toString() + "\n" + Log.getStackTraceString(ex));
-            return dips2pixels(56, context);
-        }
-    }
 }

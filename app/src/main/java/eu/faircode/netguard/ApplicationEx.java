@@ -32,7 +32,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -75,31 +79,55 @@ public class ApplicationEx extends Application {
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+                TypedValue tv = new TypedValue();
+                activity.getTheme().resolveAttribute(R.attr.colorPrimaryDark, tv, true);
+                int colorPrimaryDark = tv.data;
+
+                Window window = activity.getWindow();
+                ViewGroup decor = (ViewGroup) window.getDecorView();
+
+                decor.setBackgroundColor(colorPrimaryDark);
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM)
+                    window.setStatusBarColor(colorPrimaryDark);
+
+                View statusBarBackground = new View(activity);
+                statusBarBackground.setBackgroundColor(colorPrimaryDark);
+                statusBarBackground.setClickable(false);
+                statusBarBackground.setFocusable(false);
+                statusBarBackground.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
+                params.gravity = Gravity.TOP;
+
+                decor.addView(statusBarBackground, params);
+
+                ViewCompat.setOnApplyWindowInsetsListener(statusBarBackground, new OnApplyWindowInsetsListener() {
+                    @NonNull
+                    @Override
+                    public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
+                        Insets bars = insets.getInsets(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.displayCutout());
+                        ViewGroup.LayoutParams lparams = v.getLayoutParams();
+                        if (lparams.height != bars.top) {
+                            lparams.height = bars.top;
+                            v.setLayoutParams(lparams);
+                        }
+                        return insets;
+                    }
+                });
+
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+                boolean dark = prefs.getBoolean("dark_theme", false);
+
                 View content = activity.findViewById(android.R.id.content);
+                content.setBackgroundColor(dark ? Color.parseColor("#ff121212") : Color.WHITE);
+
                 ViewCompat.setOnApplyWindowInsetsListener(content, new OnApplyWindowInsetsListener() {
                     @NonNull
                     @Override
                     public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
-                        Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
-                        Log.i(TAG, "Insets bars=" + bars);
-
-                        TypedValue tv = new TypedValue();
-                        activity.getTheme().resolveAttribute(R.attr.colorPrimaryDark, tv, true);
-
-                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-                        boolean dark = prefs.getBoolean("dark_theme", false);
-
-                        View decor = activity.getWindow().getDecorView();
-                        decor.setBackgroundColor(tv.data);
-                        content.setBackgroundColor(dark ? Color.parseColor("#ff121212") : Color.WHITE);
-
-                        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(activity.getWindow(), decor);
-                        controller.setAppearanceLightStatusBars(false);
-                        controller.setAppearanceLightNavigationBars(!dark);
-
-                        int actionBarHeight = Util.getActionBarHeight(activity);
-                        v.setPadding(bars.left, bars.top + actionBarHeight, bars.right, bars.bottom);
-
+                        Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                        v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
                         return insets;
                     }
                 });
@@ -107,32 +135,26 @@ public class ApplicationEx extends Application {
 
             @Override
             public void onActivityStarted(@NonNull Activity activity) {
-
             }
 
             @Override
             public void onActivityResumed(@NonNull Activity activity) {
-
             }
 
             @Override
             public void onActivityPaused(@NonNull Activity activity) {
-
             }
 
             @Override
             public void onActivityStopped(@NonNull Activity activity) {
-
             }
 
             @Override
             public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-
             }
 
             @Override
             public void onActivityDestroyed(@NonNull Activity activity) {
-
             }
         });
     }
